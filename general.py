@@ -15,7 +15,6 @@ def list_comparer(lists, threshold):
         for j in range(len(lists)):
             list_b = lists[j]
             if i!=j:
-                # print("i: {}, j:{}, val:{}".format(i,j,sum([a == b for (a, b) in itertools.product(list_a, list_b)])))
                 comparisons[i,j] = (sum([abs(a - b) < threshold for (a, b) in itertools.product(list_a, list_b)]))
     return comparisons
 
@@ -37,10 +36,11 @@ for i in names:
 jackson = locations[-3]+locations[-2]+locations[-1]
 locations = locations[:-3]
 locations.append(jackson)
+
 ### How close in the text should character tokens have to be to be counted?
 threshold = 20
 
-### Count cooccurrences and then determine which of these are important links
+### Count cooccurrences and determine which of these are important links
 a = list_comparer(locations, threshold)
 print('Matrix of cooccurrences:\n')
 print(a)
