@@ -56,6 +56,72 @@ def passage_sentiment(passage):
             predictions.append(-1)
     return predictions
 
+
+def relationship_characterizer(list_of_occurrences):
+    '''Accepts a nested list of cooccurrences where the first list refers
+    to individual characters (focal), and the next level refers to all the other
+    characters (secondary). Finally, nested in these secondary lists are tuples
+    that give textual indices for beginning and end points of the passage
+    bracketed by the names of the focal and secondary characters.
+
+    The goal is to return a sensible list containing these passages for
+    sentiment analysis.'''
+
+    passages = []
+    for i in range(len(locations)):
+        focal_char = []
+        for j in range(len(locations)):
+            secondary_char = []
+            if i < j:
+                for k in range(len(b[i][j])):
+                    start = min(b[i][j][k])
+                    end = max(b[i][j][k])
+                    secondary_char.append(text[start:end+1])
+            elif i > j:
+                secondary_char.append('Covered by another cell')
+            else:
+                secondary_char.append('Identical character')
+            focal_char.append(secondary_char)
+        passages.append(focal_char)
+    return passages
+
+    # for i in range(len(locations)):
+    #     focal = []
+    #     for j in range(len(locations)):
+    #         secondary = []
+    #         if i < j:
+    #             indices = b[i][j]
+    #             # print(indices)
+    #             starts = [min(k) for k in indices]
+    #             ends = [max(k) for k in indices]
+    #         elif i > j:
+    #             print('Covered by another cell')
+    #         else:
+    #             print('Identical character')
+    #
+    # for i in range(len(locations)):
+    #     for j in range(len(locations)):
+    #         if i < j:
+    #             indices = b[i][j]
+    #             # print(indices)
+    #             starts = [min(k) for k in indices]
+    #             ends = [max(k) for k in indices]
+    #         elif i > j:
+    #             print('Covered by another cell')
+    #         else:
+    #             print('Identical character')
+
+
+    ### Quick sample of text involved in cooccurrences?
+    # for i in range(2):
+    #     print(b[0][1][i])
+    #     start = min(b[0][1][i])
+    #     end = max(b[0][1][i])
+    #     print(text[start:end+1])
+
+    # for i in range(len(locations)):
+    #     print(len(b[i]))
+
 ### Load text file, remove licence, and do text_preprocessing
 processed = file_processor('./data/general.txt','''A ma petite-fille''')
 
@@ -103,3 +169,6 @@ for i in range(len(locations)):
     char_scores.append(np.mean(scores))
 
 print(char_scores)
+
+c = relationship_characterizer(b)
+print(c)
