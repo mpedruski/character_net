@@ -91,23 +91,25 @@ def list_comparer(lists, threshold):
         indices.append(char_indices)
     return comparisons, indices
 
+### Main module
+if __name__ == "__main__":
 
-### Load text file, remove licence, and do text_preprocessing
-processed = file_processor('./data/general.txt','''A ma petite-fille''')
+    ### Load text file, remove licence, and do text_preprocessing
+    processed = file_processor('./data/general.txt','''A ma petite-fille''')
 
-### Tokenize into words to find cooccurrences
-tokens = nltk.word_tokenize(processed)
-text = nltk.Text(tokens)
+    ### Tokenize into words to find cooccurrences
+    tokens = nltk.word_tokenize(processed)
+    text = nltk.Text(tokens)
 
-### Generate list of locations for each character
-locations = general_character_handling(text)
+    ### Generate list of locations for each character
+    locations = general_character_handling(text)
 
-### How close in the text should character tokens have to be to be counted?
-threshold = 20
+    ### How close in the text should character tokens have to be to be counted?
+    threshold = 20
 
-### Number of co-occurrences (a), and boundaries of these text passages (b)
-a,b = list_comparer(locations, threshold)
-### Takes indices of boundaries, and returns passages as a list per relationship
-c = passage_aggregator(b)
-### Turns list of passages per relationship into a csv for editing
-passage_deaggregator(c)
+    ### Number of co-occurrences (a), and boundaries of these text passages (b)
+    a,b = list_comparer(locations, threshold)
+    ### Takes indices of boundaries, and returns passages as a list per relationship
+    c = passage_aggregator(b)
+    ### Turns list of passages per relationship into a csv for editing
+    passage_deaggregator(c)

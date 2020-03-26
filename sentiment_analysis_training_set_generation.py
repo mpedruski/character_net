@@ -38,11 +38,13 @@ def generate_sentence_csv(text, file_name):
         for i in tokens:
             sentence_writer.writerow([i])
 
+### Main module
+if __name__ == "__main__":
 
-### Load training file, remove licence, and preprocess
-training_file = file_processor('./data/auberge.txt','''A mes petits-fils, LOUIS ET GASTON DE MALARET''')
-target_file = file_processor('./data/general.txt','''A ma petite-fille''')
+    ### Load training file, remove licence, and preprocess
+    training_file = file_processor('./data/auberge.txt','''A mes petits-fils, LOUIS ET GASTON DE MALARET''')
+    target_file = file_processor('./data/general.txt','''A ma petite-fille''')
 
-### Generate output csvs from text for training and target text
-generate_sentence_csv(training_file,'./data/auberge_raw_sentences.csv')
-generate_sentence_csv(target_file,'./data/general_raw_sentences.csv')
+    ### Generate output csvs from text for training and target text
+    generate_sentence_csv(training_file,'./data/auberge_raw_sentences.csv')
+    generate_sentence_csv(target_file,'./data/general_raw_sentences.csv')
