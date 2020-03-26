@@ -7,30 +7,9 @@ import logging
 from sklearn.feature_extraction.text import TfidfVectorizer
 from joblib import load
 from sentiment_analysis_training_set_generation import file_processor, text_preprocessing
+from co_occurrence_data_generation import list_comparer, general_character_handling
 
 logging.basicConfig(level=logging.DEBUG,format='%(asctime)s - %(levelname)s - %(message)s')
-
-def list_comparer(lists, threshold):
-    '''[[int]] -> arr
-    Accepts a list of lists of integers and identifies how many elements exist
-    within all pairs of lists that are within a threshold distance.
-    The number of elements within this threshold is returned in the form of a
-    numpy array.
-    '''
-    comparisons = np.zeros((len(lists),len(lists)))
-    indices = []
-    for i in range(len(lists)):
-        list_a = lists[i]
-        char_indices = []
-        for j in range(len(lists)):
-            list_b = lists[j]
-            if i!=j:
-                comparisons[i,j] = (sum([abs(a - b) < threshold for (a, b) in itertools.product(list_a, list_b)]))
-                char_indices.append([(a,b) for (a, b) in itertools.product(list_a, list_b) if abs(a-b)< threshold])
-            else:
-                char_indices.append([])
-        indices.append(char_indices)
-    return comparisons, indices
 
 def centered_passages(indices, threshold):
     '''Accepts a list of indices where a character is mentioned and returns
@@ -56,72 +35,6 @@ def passage_sentiment(passage):
             predictions.append(-1)
     return predictions
 
-
-def relationship_characterizer(list_of_occurrences):
-    '''Accepts a nested list of cooccurrences where the first list refers
-    to individual characters (focal), and the next level refers to all the other
-    characters (secondary). Finally, nested in these secondary lists are tuples
-    that give textual indices for beginning and end points of the passage
-    bracketed by the names of the focal and secondary characters.
-
-    The goal is to return a sensible list containing these passages for
-    sentiment analysis.'''
-
-    passages = []
-    for i in range(len(locations)):
-        focal_char = []
-        for j in range(len(locations)):
-            secondary_char = []
-            if i < j:
-                for k in range(len(b[i][j])):
-                    start = min(b[i][j][k])
-                    end = max(b[i][j][k])
-                    secondary_char.append(text[start:end+1])
-            elif i > j:
-                secondary_char.append('Covered by another cell')
-            else:
-                secondary_char.append('Identical character')
-            focal_char.append(secondary_char)
-        passages.append(focal_char)
-    return passages
-
-    # for i in range(len(locations)):
-    #     focal = []
-    #     for j in range(len(locations)):
-    #         secondary = []
-    #         if i < j:
-    #             indices = b[i][j]
-    #             # print(indices)
-    #             starts = [min(k) for k in indices]
-    #             ends = [max(k) for k in indices]
-    #         elif i > j:
-    #             print('Covered by another cell')
-    #         else:
-    #             print('Identical character')
-    #
-    # for i in range(len(locations)):
-    #     for j in range(len(locations)):
-    #         if i < j:
-    #             indices = b[i][j]
-    #             # print(indices)
-    #             starts = [min(k) for k in indices]
-    #             ends = [max(k) for k in indices]
-    #         elif i > j:
-    #             print('Covered by another cell')
-    #         else:
-    #             print('Identical character')
-
-
-    ### Quick sample of text involved in cooccurrences?
-    # for i in range(2):
-    #     print(b[0][1][i])
-    #     start = min(b[0][1][i])
-    #     end = max(b[0][1][i])
-    #     print(text[start:end+1])
-
-    # for i in range(len(locations)):
-    #     print(len(b[i]))
-
 ### Load text file, remove licence, and do text_preprocessing
 processed = file_processor('./data/general.txt','''A ma petite-fille''')
 
@@ -133,19 +46,8 @@ clf = load('./data/sentiment_analysis_model.joblib')
 tokens = nltk.word_tokenize(processed)
 text = nltk.Text(tokens)
 
-### A list of characters whose relationships should be analyzed
-### and determine where in the text they occur
-names = ['général','dabrovine','papofski','dérigny','natasha',
-    'jacques', 'paul', 'romane', 'pajarski','jackson']
-locations = []
-for i in names:
-    locations.append([j for j, item in enumerate(text) if item == i])
-
-### Combine jackson, pajarski, and romane as synonyms
-jackson = locations[-3]+locations[-2]+locations[-1]
-locations = locations[:-3]
-locations.append(jackson)
-logging.debug('Length of locations = {}'.format(len(locations)))
+### Generate list of locations for each character
+locations = general_character_handling(text)
 
 ### How close in the text should character tokens have to be to be counted?
 threshold = 20
@@ -154,8 +56,6 @@ threshold = 20
 a,b = list_comparer(locations, threshold)
 print('Matrix of cooccurrences:\n')
 print(a)
-logging.debug('Dimensions of cooccurrence array: {}'.format(a.shape))
-logging.debug('Length of passages list: {}'.format(len(b)))
 
 ### Define links to be where cooccurrences are greater than average cooccurrences
 print('Connection matrix defined by mean cooccurrences:\n')
@@ -169,6 +69,3 @@ for i in range(len(locations)):
     char_scores.append(np.mean(scores))
 
 print(char_scores)
-
-c = relationship_characterizer(b)
-print(c)
