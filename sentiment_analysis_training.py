@@ -32,7 +32,7 @@ if __name__ == "__main__":
     features = vectorizer.transform(features).toarray()
 
     ### Split into train and test sets
-    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, stratify = labels, random_state=0)
 
     ### Train the model
     clf = RandomForestClassifier(n_estimators=200, random_state=0)

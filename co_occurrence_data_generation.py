@@ -53,11 +53,9 @@ def passage_deaggregator(text):
             for j in passages:
                 sentence_writer.writerow([j,i])
 
-def general_character_handling(text):
+def general_character_handling(text, names):
     ### A list of characters whose relationships should be analyzed
     ### and determine where in the text they occur
-    names = ['général','dabrovine','papofski','dérigny','natasha',
-        'jacques', 'paul', 'romane', 'pajarski','jackson']
     locations = []
     for i in names:
         locations.append([j for j, item in enumerate(text) if item == i])
@@ -101,8 +99,12 @@ if __name__ == "__main__":
     tokens = nltk.word_tokenize(processed)
     text = nltk.Text(tokens)
 
+    ### The names of characters
+    names = ['général','dabrovine','papofski','dérigny','natasha',
+        'jacques', 'paul', 'romane', 'pajarski','jackson']
+
     ### Generate list of locations for each character
-    locations = general_character_handling(text)
+    locations = general_character_handling(text, names)
 
     ### How close in the text should character tokens have to be to be counted?
     threshold = 20
