@@ -37,18 +37,29 @@ def passage_sentiment(passage):
             predictions.append(-1)
     return predictions
 
-def network_visualizer(edge_matrix, character_list):
+def network_visualizer(edge_matrix, character_list, edge_sentiment, node_sentiment):
     edge_list = []
     for i in range(len(character_list)):
         for j in range(len(character_list)):
             if i < j:
                 if edge_matrix[i,j] == True:
                     edge_list.append((characters[i],characters[j]))
-    print(edge_list)
+    # print(edge_list)
+    ### Characterize sentiment as positive vs negative
+    edge_sentiment = [1 if ind >= 0.5 else 0 for ind in edge_sentiment]
+    node_sentiment = [1 if ind >= 0.5 else 0 for ind in node_sentiment]
+    ### Create RGB tuple vectors for edges and nodes
+    edge_colours = []
+    for i in edge_sentiment:
+        edge_colours.append((1-i,0,1))
+    node_colours = []
+    for i in node_sentiment:
+        node_colours.append((1-i,0,1))
+    ### Plot network with appropriate colours for edges and nodes
     G = nx.Graph()
     G.add_nodes_from(characters)
     G.add_edges_from(edge_list)
-    nx.draw(G, with_labels = True)
+    nx.draw(G, with_labels = True, edge_color = edge_colours, node_color = node_colours)
     # plt.savefig('./data/character_network.png')
 
 ### Main module
@@ -96,8 +107,6 @@ if __name__ == "__main__":
         # scores = list(filter((0).__ne__, scores))
         char_scores.append(np.mean(scores))
 
-    print(char_scores)
-
     ### Sentiment scores for co-occurrence passages
     df = pd.read_csv('./data/relationship_passages.csv')
     df['Sentiment'] = passage_sentiment(df['Passage'])
@@ -121,4 +130,4 @@ if __name__ == "__main__":
     print(mean_passage_scores)
 
     ## Visualizing network
-    network_visualizer(edges, characters)
+    network_visualizer(edges, characters, mean_passage_scores, char_scores)
