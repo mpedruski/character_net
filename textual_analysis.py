@@ -3,7 +3,8 @@ import numpy as np
 import pandas as pd
 import itertools
 import re
-# import csv
+import networkx as nx
+import matplotlib.pyplot as plt
 import logging
 from sklearn.feature_extraction.text import TfidfVectorizer
 from joblib import load
@@ -36,6 +37,20 @@ def passage_sentiment(passage):
             predictions.append(-1)
     return predictions
 
+def network_visualizer(edge_matrix, character_list):
+    edge_list = []
+    for i in range(len(character_list)):
+        for j in range(len(character_list)):
+            if i < j:
+                if edge_matrix[i,j] == True:
+                    edge_list.append((characters[i],characters[j]))
+    print(edge_list)
+    G = nx.Graph()
+    G.add_nodes_from(characters)
+    G.add_edges_from(edge_list)
+    nx.draw(G, with_labels = True)
+    # plt.savefig('./data/character_network.png')
+
 ### Main module
 if __name__ == "__main__":
 
@@ -54,6 +69,9 @@ if __name__ == "__main__":
     names = ['général','dabrovine','papofski','dérigny','natasha',
         'jacques', 'paul', 'romane', 'pajarski','jackson']
 
+    characters = ['général','dabrovine','papofski','dérigny','natasha',
+        'jacques', 'paul', 'pajarski']
+
     ### Generate list of locations for each character
     locations = general_character_handling(text, names)
 
@@ -62,12 +80,10 @@ if __name__ == "__main__":
 
     ### Count cooccurrences and determine which of these are important links
     a,b = list_comparer(locations, threshold)
-    print('Matrix of cooccurrences:\n')
-    print(a)
 
     ### Define links to be where cooccurrences are greater than average cooccurrences
-    print('Connection matrix defined by mean cooccurrences:\n')
-    print(np.greater(a,np.mean(a)))
+    edges = np.greater(a,np.mean(a))
+
 
     ### How positive or negative on average are mentions of the characters?
     char_scores = []
@@ -95,4 +111,14 @@ if __name__ == "__main__":
             vals.append(np.mean(y))
         else:
             vals.append('No positive or negative scores')
-    print(vals)
+    valid_edges = np.concatenate(edges).tolist()
+    valid_edge_scores = list(itertools.compress(vals, valid_edges))
+
+    ### Mean sentiment score for each edge in the graph, in same order
+    ### as edges extracted from the table of edges (i.e. order in network_visualizer)
+    mean_passage_scores = [ind for ind in valid_edge_scores if isinstance(ind,float)]
+
+    print(mean_passage_scores)
+
+    ## Visualizing network
+    network_visualizer(edges, characters)
