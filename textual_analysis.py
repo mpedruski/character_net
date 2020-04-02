@@ -11,7 +11,7 @@ from joblib import load
 from sentiment_analysis_training_set_generation import file_processor, text_preprocessing
 from co_occurrence_data_generation import list_comparer, general_character_handling
 
-logging.basicConfig(level=logging.DEBUG,format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.CRITICAL,format='%(asctime)s - %(levelname)s - %(message)s')
 
 def centered_passages(indices, threshold):
     '''Accepts a list of indices where a character is mentioned and returns
@@ -44,10 +44,9 @@ def network_visualizer(edge_matrix, character_list, edge_sentiment, node_sentime
             if i < j:
                 if edge_matrix[i,j] == True:
                     edge_list.append((characters[i],characters[j]))
-    # print(edge_list)
-    ### Characterize sentiment as positive vs negative
-    edge_sentiment = [1 if ind >= 0.5 else 0 for ind in edge_sentiment]
-    node_sentiment = [1 if ind >= 0.5 else 0 for ind in node_sentiment]
+    ### Characterize sentiment as positive vs negative vs. neutral
+    edge_sentiment = [1 if ind >= 0.35 else 0.5 if -0.35 < ind and ind < 0.35 else 0 for ind in edge_sentiment]
+    node_sentiment = [1 if ind >= 0.35 else 0.5 if -0.35 < ind and ind < 0.35 else 0 for ind in node_sentiment]
     ### Create RGB tuple vectors for edges and nodes
     edge_colours = []
     for i in edge_sentiment:
@@ -59,8 +58,9 @@ def network_visualizer(edge_matrix, character_list, edge_sentiment, node_sentime
     G = nx.Graph()
     G.add_nodes_from(characters)
     G.add_edges_from(edge_list)
-    nx.draw(G, with_labels = True, edge_color = edge_colours, node_color = node_colours)
-    # plt.savefig('./data/character_network.png')
+    nx.draw(G, with_labels = True, edge_color = edge_colours, node_color = node_colours, pos = nx.kamada_kawai_layout(G))
+    # plt.show()
+    plt.savefig('./data/character_network.svg')
 
 ### Main module
 if __name__ == "__main__":
@@ -77,12 +77,8 @@ if __name__ == "__main__":
     text = nltk.Text(tokens)
 
     ### The names of characters
-    names = ['général','dabrovine','papofski','dérigny','natasha',
-        'jacques', 'paul', 'romane', 'pajarski','jackson']
-    # names = load('./data/character_names.joblib')
-
-    characters = ['général','dabrovine','papofski','dérigny','natasha',
-        'jacques', 'paul', 'pajarski']
+    names = list(load('./data/character_names.joblib'))
+    names = [i.lower() for i in names]
 
     ### Generate list of locations for each character
     locations = general_character_handling(text, names)
@@ -96,7 +92,6 @@ if __name__ == "__main__":
     ### Define links to be where cooccurrences are greater than average cooccurrences
     edges = np.greater(a,np.mean(a))
 
-
     ### How positive or negative on average are mentions of the characters?
     char_scores = []
     for i in range(len(locations)):
@@ -105,15 +100,15 @@ if __name__ == "__main__":
         ### Remove scores of 0 (when characterizing good vs bad neutral
         ### scores only dilute the signal)
         scores = [x for x in scores if x != 0]
-        # scores = list(filter((0).__ne__, scores))
         char_scores.append(np.mean(scores))
+    print(char_scores)
 
     ### Sentiment scores for co-occurrence passages
     df = pd.read_csv('./data/relationship_passages.csv')
     df['Sentiment'] = passage_sentiment(df['Passage'])
     df.to_csv('./data/Sentiment_scores.csv')
     vals = []
-    for i in range(64):
+    for i in range(len(names)*len(names)):
         df_sub = df[df['Code']==i]
         x = df_sub['Sentiment']
         y = [i for i in x if i != 0]
@@ -127,8 +122,11 @@ if __name__ == "__main__":
     ### Mean sentiment score for each edge in the graph, in same order
     ### as edges extracted from the table of edges (i.e. order in network_visualizer)
     mean_passage_scores = [ind for ind in valid_edge_scores if isinstance(ind,float)]
-
     print(mean_passage_scores)
 
-    ## Visualizing network
+    ### Temporarily equate characters and names (ultimately characters should
+    ###be a resolved form of names)
+    characters = names
+
+    ### Visualizing network
     network_visualizer(edges, characters, mean_passage_scores, char_scores)

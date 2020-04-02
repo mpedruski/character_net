@@ -4,6 +4,7 @@ import itertools
 import csv
 import re
 import logging
+from joblib import load
 
 from sentiment_analysis_training_set_generation import file_processor, text_preprocessing
 
@@ -60,10 +61,10 @@ def general_character_handling(text, names):
     for i in names:
         locations.append([j for j, item in enumerate(text) if item == i])
 
-    ### Combine jackson, pajarski, and romane as synonyms
-    jackson = locations[-3]+locations[-2]+locations[-1]
-    locations = locations[:-3]
-    locations.append(jackson)
+    # ### Combine jackson, pajarski, and romane as synonyms
+    # jackson = locations[-3]+locations[-2]+locations[-1]
+    # locations = locations[:-3]
+    # locations.append(jackson)
     logging.debug('Length of locations = {}'.format(len(locations)))
     return locations
 
@@ -100,8 +101,8 @@ if __name__ == "__main__":
     text = nltk.Text(tokens)
 
     ### The names of characters
-    names = ['général','dabrovine','papofski','dérigny','natasha',
-        'jacques', 'paul', 'romane', 'pajarski','jackson']
+    names = list(load('./data/character_names.joblib'))
+    names = [i.lower() for i in names]
 
     ### Generate list of locations for each character
     locations = general_character_handling(text, names)

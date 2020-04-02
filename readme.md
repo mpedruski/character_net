@@ -29,8 +29,8 @@ for children *Le Général Dourakine*. The sentiment anlaysis training is being 
 her novel *L'auberge de l'ange gardien*. Ultimately the goal is to be able to generalize
 it to any text.
 
-Currently the the identification of important relationships (step 2),the identification of
-character positivity (step 3), and edge nature (step 4) are functional. This file will be updated as progress is made!
+At this point all steps in the pipeline are functional, though iterative improvements
+are planned.
 
 ## Files
 
@@ -40,6 +40,6 @@ Files used in this project include:
 
 * sentiment_analysis_trainin.py: This file builds a textual vector space (tf-idf) using both a training text and a target text. It additionally trains a sentiment analysis model using this vector space and the training text.
 
-* textual_analysis.py: This file analyzes the target text given a list of characters and a pre-trained sentiment analysis model to return which of the characters are strongly linked, the nature each of those characters, and the nature of the strong relationships between the characters. Currently provides output in the form of a graph showing characters and relationships (positive characters and relationships in purple, negative ones in pink).
+* textual_analysis.py: This file analyzes the target text given a list of characters and a pre-trained sentiment analysis model to return which of the characters are strongly linked, the nature each of those characters, and the nature of the strong relationships between the characters. Currently provides output in the form of a graph showing characters and relationships (positive characters and relationships in blue, neutral characters and relationships in purple, negative ones in pink).
 
 * co_occurrence_data_generation.py: This file accepts the target text, produces a list of indices forming the boundaries of co-occurrences, and then writes a csv file that contains this bounded text in the first column, and the label indicating which relationship is referred to in the second column.
