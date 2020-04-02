@@ -66,7 +66,7 @@ def network_visualizer(edge_matrix, character_list, edge_sentiment, node_sentime
 if __name__ == "__main__":
 
     ### Load text file, remove licence, and do text_preprocessing
-    processed = file_processor('./data/general.txt','''A ma petite-fille''')
+    processed = text_preprocessing(file_processor('./data/general.txt','''A ma petite-fille'''))
 
     ### Load pretrained vectorizer and classifier
     vectorizer = load('./data/vectorizer.joblib')
@@ -79,6 +79,7 @@ if __name__ == "__main__":
     ### The names of characters
     names = ['général','dabrovine','papofski','dérigny','natasha',
         'jacques', 'paul', 'romane', 'pajarski','jackson']
+    # names = load('./data/character_names.joblib')
 
     characters = ['général','dabrovine','papofski','dérigny','natasha',
         'jacques', 'paul', 'pajarski']

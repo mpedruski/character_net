@@ -93,7 +93,7 @@ def list_comparer(lists, threshold):
 if __name__ == "__main__":
 
     ### Load text file, remove licence, and do text_preprocessing
-    processed = file_processor('./data/general.txt','''A ma petite-fille''')
+    processed = text_preprocessing(file_processor('./data/general.txt','''A ma petite-fille'''))
 
     ### Tokenize into words to find cooccurrences
     tokens = nltk.word_tokenize(processed)
