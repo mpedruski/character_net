@@ -8,6 +8,8 @@ from joblib import load
 
 from sentiment_analysis_training_set_generation import file_processor, text_preprocessing
 
+logging.basicConfig(level=logging.CRITICAL,format='%(asctime)s - %(levelname)s - %(message)s')
+
 def passage_aggregator(list_of_occurrences):
     '''
     [[(ind,ind)]] -> [[passages]]
