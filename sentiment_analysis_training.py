@@ -12,7 +12,7 @@ from sklearn.metrics import classification_report, confusion_matrix, accuracy_sc
 from joblib import dump
 from collections import Counter
 
-logging.basicConfig(level=logging.CRITICAL,format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=logging.DEBUG,format='%(asctime)s - %(levelname)s - %(message)s')
 
 def cross_validation_suite(X_train, y_train):
     models = [RandomForestClassifier(n_estimators=200, random_state=0),
@@ -47,7 +47,7 @@ if __name__ == "__main__":
     target_features = target_text['Text']
     complete_features = pd.concat([features,target_features])
 
-    ### Vectorize text min_df=7, max_df=0.8
+    ### Vectorize text min_df=7, max_df=0.8,
     vectorizer = TfidfVectorizer (max_features=2500, stop_words=stopwords.words('french'))
     vectorizer.fit(complete_features)
     features = vectorizer.transform(features).toarray()
@@ -62,18 +62,13 @@ if __name__ == "__main__":
     ### For the moment balanced data yields markedly worse CV scores than
     ### complete but imbalanced data for all but Multinomial Bayes
 
-    ### Cross validation - Highest average score for Random Forest,
-    ### but Complement Bayes and Gradient boosting offer effectively the same
-    ### and Complement Bayes has by far highest recall for positive, negative
-    ### interactions, with slight declines in precision (does markedly worse
-    ### for neutral interactions) - effectively it's calling many more interactions
-    ### positive or negative, compensating for class imbalance
+    ### Cross validation
     cross_validation_suite(X_train, y_train)
 
     ### Use the model with the highest cross_val_score
-    clf = ComplementNB()
+    clf = RandomForestClassifier(n_estimators=200, random_state=0)
 
-    ## Test the model
+    # Test the model
     clf.fit(X_train, y_train)
     predictions = clf.predict(X_test)
     print(confusion_matrix(y_test,predictions))
