@@ -100,7 +100,10 @@ if __name__ == "__main__":
         ### Remove scores of 0 (when characterizing good vs bad neutral
         ### scores only dilute the signal)
         scores = [x for x in scores if x != 0]
-        char_scores.append(np.mean(scores))
+        if len(scores) > 0:
+            char_scores.append(np.mean(scores))
+        else:
+            char_scores.append(0)
     print(char_scores)
 
     ### Sentiment scores for co-occurrence passages

@@ -4,7 +4,7 @@ import nltk
 import logging
 from imblearn.under_sampling import RandomUnderSampler
 from nltk.corpus import stopwords
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer, CountVectorizer
 from sklearn.model_selection import train_test_split, cross_val_score, cross_val_predict
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.naive_bayes import MultinomialNB, ComplementNB
@@ -17,10 +17,10 @@ logging.basicConfig(level=logging.DEBUG,format='%(asctime)s - %(levelname)s - %(
 def cross_validation_suite(X_train, y_train):
     models = [RandomForestClassifier(n_estimators=200, random_state=0),
         MultinomialNB(),
-        ComplementNB(),
-        GradientBoostingClassifier(n_estimators=200, random_state=0)]
-    names = ['Random forest:', 'Multinobial Bayes:', 'Complement Bayes:',
-        'Gradient Boosting:']
+        ComplementNB()
+        ,GradientBoostingClassifier(n_estimators=200, random_state=0)]
+    names = ['Random forest:', 'Multinobial Bayes:', 'Complement Bayes:'
+        ,'Gradient Boosting:']
     for i in range(len(models)):
         clf = models[i]
         score = cross_val_score(clf,X_train,y_train)
@@ -47,8 +47,9 @@ if __name__ == "__main__":
     target_features = target_text['Text']
     complete_features = pd.concat([features,target_features])
 
-    ### Vectorize text min_df=7, max_df=0.8,
-    vectorizer = TfidfVectorizer (max_features=2500, stop_words=stopwords.words('french'))
+    ### Vectorize text
+    # vectorizer = CountVectorizer(max_features=2500, stop_words=stopwords.words('french'))
+    vectorizer = TfidfVectorizer(max_features=2500, stop_words=stopwords.words('french'))
     vectorizer.fit(complete_features)
     features = vectorizer.transform(features).toarray()
 
@@ -75,5 +76,5 @@ if __name__ == "__main__":
     print(classification_report(y_test,predictions))
     print(accuracy_score(y_test, predictions))
 
-    # dump(clf, './data/sentiment_analysis_model.joblib')
-    # dump(vectorizer, './data/vectorizer.joblib')
+    dump(clf, './data/sentiment_analysis_model.joblib')
+    dump(vectorizer, './data/vectorizer.joblib')

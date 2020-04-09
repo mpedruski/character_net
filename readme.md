@@ -30,7 +30,10 @@ her novel *L'auberge de l'ange gardien*. Ultimately the goal is to be able to ge
 it to any text.
 
 At this point all steps in the pipeline are functional, though iterative improvements
-are planned.
+are planned. You can see a sample network built by the model below:
+
+!["Visualization of network in progress"][network]
+[network]: https://github.com/mpedruski/character_net/blob/master/results/character_network.svg.png "Network in progress"
 
 ## Files
 
@@ -43,3 +46,7 @@ Files used in this project include:
 * textual_analysis.py: This file analyzes the target text given a list of characters and a pre-trained sentiment analysis model to return which of the characters are strongly linked, the nature each of those characters, and the nature of the strong relationships between the characters. Currently provides output in the form of a graph showing characters and relationships (positive characters and relationships in blue, neutral characters and relationships in purple, negative ones in pink).
 
 * co_occurrence_data_generation.py: This file accepts the target text, produces a list of indices forming the boundaries of co-occurrences, and then writes a csv file that contains this bounded text in the first column, and the label indicating which relationship is referred to in the second column.
+
+* character_identification.py: This file implements a rules-based identification of characters found in the text. Essentially it looks for capitalized words that don't occur at the beginning of a sentence as well as names that would not be capitalized, but come before colons (often a marker of a speaker in the target text). It discards any words that don't occur more than some threshold. It then removes words using two custom stopword lists (one of common words that might have meaning in other contexts and as such are not in NLTKs stopwords, and one of geographical entities).
+
+* character_identification_spacy.py: This file provides an out-of-the-box spaCy implementation of character identificaiton. While it does provide some information absent in the rules based approach, the value of this extra information is fairly limited and the data are quite messy, suggesting a custom-trained NER model might be necessary before spaCy is able to supplant the rules-based approach.
