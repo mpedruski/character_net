@@ -10,8 +10,8 @@ if __name__ == "__main__":
     ### Load a pre-trained model
     nlp = spacy.load("fr_core_news_sm")
 
-    ### Load text file, remove licence, and do text_preprocessing
-    raw = file_processor('./data/general.txt','''A ma petite-fille''')
+    ### Load text file and remove licence
+    raw = file_processor('./data/general.txt','''A ma petite-fille''','''End of Project Gutenberg's''')
 
     ### Do the processing
     doc = nlp(raw)

@@ -4,8 +4,7 @@ import itertools
 import csv
 import re
 import logging
-from joblib import load
-
+from character_identification import execute_char_id
 from sentiment_analysis_training_set_generation import file_processor, text_preprocessing
 
 logging.basicConfig(level=logging.CRITICAL,format='%(asctime)s - %(levelname)s - %(message)s')
@@ -96,14 +95,14 @@ def list_comparer(lists, threshold):
 if __name__ == "__main__":
 
     ### Load text file, remove licence, and do text_preprocessing
-    processed = text_preprocessing(file_processor('./data/general.txt','''A ma petite-fille'''))
+    processed = text_preprocessing(file_processor('./data/general.txt','''A ma petite-fille''','''End of Project Gutenberg's'''))
 
     ### Tokenize into words to find cooccurrences
     tokens = nltk.word_tokenize(processed)
     text = nltk.Text(tokens)
 
     ### The names of characters
-    names = list(load('./data/character_names.joblib'))
+    names = execute_char_id('./data/general.txt','''A ma petite-fille''','''End of Project Gutenberg's''')
     names = [i.lower() for i in names]
 
     ### Generate list of locations for each character

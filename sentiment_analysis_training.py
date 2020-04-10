@@ -17,10 +17,10 @@ logging.basicConfig(level=logging.DEBUG,format='%(asctime)s - %(levelname)s - %(
 def cross_validation_suite(X_train, y_train):
     models = [RandomForestClassifier(n_estimators=200, random_state=0),
         MultinomialNB(),
-        ComplementNB()
-        ,GradientBoostingClassifier(n_estimators=200, random_state=0)]
-    names = ['Random forest:', 'Multinobial Bayes:', 'Complement Bayes:'
-        ,'Gradient Boosting:']
+        ComplementNB()]
+        # ,GradientBoostingClassifier(n_estimators=200, random_state=0)]
+    names = ['Random forest:', 'Multinobial Bayes:', 'Complement Bayes:']
+        # ,'Gradient Boosting:']
     for i in range(len(models)):
         clf = models[i]
         score = cross_val_score(clf,X_train,y_train)
@@ -49,6 +49,7 @@ if __name__ == "__main__":
 
     ### Vectorize text
     # vectorizer = CountVectorizer(max_features=2500, stop_words=stopwords.words('french'))
+    # vectorizer = CountVectorizer(analyzer='char', ngram_range=(5, 5))
     vectorizer = TfidfVectorizer(max_features=2500, stop_words=stopwords.words('french'))
     vectorizer.fit(complete_features)
     features = vectorizer.transform(features).toarray()
@@ -76,5 +77,5 @@ if __name__ == "__main__":
     print(classification_report(y_test,predictions))
     print(accuracy_score(y_test, predictions))
 
-    dump(clf, './data/sentiment_analysis_model.joblib')
-    dump(vectorizer, './data/vectorizer.joblib')
+    # dump(clf, './data/sentiment_analysis_model.joblib')
+    # dump(vectorizer, './data/vectorizer.joblib')

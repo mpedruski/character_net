@@ -7,9 +7,12 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import logging
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.cluster import KMeans
+from sklearn import preprocessing
 from joblib import load
 from sentiment_analysis_training_set_generation import file_processor, text_preprocessing
 from co_occurrence_data_generation import list_comparer, general_character_handling
+from character_identification import execute_char_id
 
 logging.basicConfig(level=logging.CRITICAL,format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -44,9 +47,6 @@ def network_visualizer(edge_matrix, character_list, edge_sentiment, node_sentime
             if i < j:
                 if edge_matrix[i,j] == True:
                     edge_list.append((characters[i],characters[j]))
-    ### Characterize sentiment as positive vs negative vs. neutral
-    edge_sentiment = [1 if ind >= 0.35 else 0.5 if -0.35 < ind and ind < 0.35 else 0 for ind in edge_sentiment]
-    node_sentiment = [1 if ind >= 0.35 else 0.5 if -0.35 < ind and ind < 0.35 else 0 for ind in node_sentiment]
     ### Create RGB tuple vectors for edges and nodes
     edge_colours = []
     for i in edge_sentiment:
@@ -66,7 +66,7 @@ def network_visualizer(edge_matrix, character_list, edge_sentiment, node_sentime
 if __name__ == "__main__":
 
     ### Load text file, remove licence, and do text_preprocessing
-    processed = text_preprocessing(file_processor('./data/general.txt','''A ma petite-fille'''))
+    processed = text_preprocessing(file_processor('./data/general.txt','''A ma petite-fille''','''End of Project Gutenberg's'''))
 
     ### Load pretrained vectorizer and classifier
     vectorizer = load('./data/vectorizer.joblib')
@@ -77,11 +77,12 @@ if __name__ == "__main__":
     text = nltk.Text(tokens)
 
     ### The names of characters
-    names = list(load('./data/character_names.joblib'))
+    names = execute_char_id('./data/general.txt','''A ma petite-fille''','''End of Project Gutenberg's''')
     names = [i.lower() for i in names]
 
     ### Generate list of locations for each character
     locations = general_character_handling(text, names)
+    number_of_occurrences = [len(ind) for ind in locations]
 
     ### How close in the text should character tokens have to be to be counted?
     threshold = 20
@@ -104,7 +105,16 @@ if __name__ == "__main__":
             char_scores.append(np.mean(scores))
         else:
             char_scores.append(0)
-    print(char_scores)
+    char_scores_regularized = [(i+1)/2 for i in char_scores]
+
+    data = np.array((char_scores,number_of_occurrences)).T
+    # print(data)
+
+    # ### Clustering of characters by character sentiment and number of occurrences
+    # kmeans = KMeans(n_clusters=3, random_state=0).fit(data)
+    # char_clusters_for_plotting = [i/2 for i in kmeans.labels_]
+    # for i in range(len(char_clusters_for_plotting)):
+    #     print("Name: {}, Cluster: {}".format(names[i], kmeans.labels_[i]))
 
     ### Sentiment scores for co-occurrence passages
     df = pd.read_csv('./data/relationship_passages.csv')
@@ -125,11 +135,11 @@ if __name__ == "__main__":
     ### Mean sentiment score for each edge in the graph, in same order
     ### as edges extracted from the table of edges (i.e. order in network_visualizer)
     mean_passage_scores = [ind for ind in valid_edge_scores if isinstance(ind,float)]
-    print(mean_passage_scores)
+    passage_scores_regularized = [(i+1)/2 for i in mean_passage_scores]
 
     ### Temporarily equate characters and names (ultimately characters should
     ###be a resolved form of names)
     characters = names
 
     ### Visualizing network
-    network_visualizer(edges, characters, mean_passage_scores, char_scores)
+    network_visualizer(edges, characters, passage_scores_regularized, char_scores_regularized)

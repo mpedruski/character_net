@@ -30,7 +30,7 @@ her novel *L'auberge de l'ange gardien*. Ultimately the goal is to be able to ge
 it to any text.
 
 At this point all steps in the pipeline are functional, though iterative improvements
-are planned. You can see a sample network built by the model below:
+are planned. You can see a sample network built by the model below (positive characters and interactions in blue, neutral in purple, and negative in pink):
 
 !["Visualization of network in progress"](https://github.com/mpedruski/character_net/blob/master/results/character_network.svg.png "Network in progress")
 
