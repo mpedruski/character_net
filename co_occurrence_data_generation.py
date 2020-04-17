@@ -9,12 +9,13 @@ from sentiment_analysis_training_set_generation import file_processor, text_prep
 
 logging.basicConfig(level=logging.CRITICAL,format='%(asctime)s - %(levelname)s - %(message)s')
 
-def passage_aggregator(list_of_occurrences):
+def passage_aggregator(text, locations, indices_of_cooccurrences):
     '''
     [[(ind,ind)]] -> [[passages]]
-    Accepts a nested list of cooccurrences where the first list refers
-    to individual characters (focal), and the next level refers to all the other
-    characters (secondary). Finally, nested in these secondary lists are tuples
+    Accepts nltk text, a list of locations and a a nested list of cooccurrences
+    where the first list refers to individual characters (focal), and the next
+    level refers to all the other characters (secondary).
+    Finally, nested in these secondary lists are tuples
     that give textual indices for beginning and end points of the passage
     bracketed by the names of the focal and secondary characters.
 
@@ -28,9 +29,9 @@ def passage_aggregator(list_of_occurrences):
         for j in range(len(locations)):
             sentences = []
             if i < j:
-                for k in range(len(b[i][j])):
-                    start = min(b[i][j][k])
-                    end = max(b[i][j][k])
+                for k in range(len(indices_of_cooccurrences[i][j])):
+                    start = min(indices_of_cooccurrences[i][j][k])
+                    end = max(indices_of_cooccurrences[i][j][k])
                     sentence = ' '.join(text[start:end+1])
                     sentences.append(sentence)
                 passages.append(sentences)
@@ -40,7 +41,7 @@ def passage_aggregator(list_of_occurrences):
                 passages.append(['Identical character'])
     return passages
 
-def passage_deaggregator(text):
+def passage_deaggregator(passage_list, title):
     '''[[passages]] -> csv
     Accepts a list of lists, where each nested list includes all the passages
     bracketed by two character names (or an indication that such a list doesn't
@@ -48,10 +49,11 @@ def passage_deaggregator(text):
     first column includes each separate passage in a separate row, and the second
     column includes the key indicating what relationship is referred to.'''
 
-    with open('./data/relationship_passages.csv', mode='w') as sentences:
+    with open('./data/{}_relationship_passages.csv'.format(title), mode='w') as sentences:
         sentence_writer = csv.writer(sentences, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        for i in range(len(text)):
-            passages = text[i]
+        for i in range(len(passage_list)):
+            passages = passage_list[i]
+            sentence_writer.writerow(['Passage','Code'])
             for j in passages:
                 sentence_writer.writerow([j,i])
 
@@ -61,11 +63,6 @@ def general_character_handling(text, names):
     locations = []
     for i in names:
         locations.append([j for j, item in enumerate(text) if item == i])
-
-    # ### Combine jackson, pajarski, and romane as synonyms
-    # jackson = locations[-3]+locations[-2]+locations[-1]
-    # locations = locations[:-3]
-    # locations.append(jackson)
     logging.debug('Length of locations = {}'.format(len(locations)))
     return locations
 
@@ -91,6 +88,13 @@ def list_comparer(lists, threshold):
         indices.append(char_indices)
     return comparisons, indices
 
+def co_occurrence_data_generation(text, locations, cooccurrence_boundaries, title):
+    ### Takes indices of boundaries, and returns passages as a list per relationship
+    list_of_passages_per_relationship = passage_aggregator(text, locations, cooccurrence_boundaries)
+    ### Turns list of passages per relationship into a csv for editing
+    passage_deaggregator(list_of_passages_per_relationship, title)
+
+
 ### Main module
 if __name__ == "__main__":
 
@@ -112,8 +116,8 @@ if __name__ == "__main__":
     threshold = 20
 
     ### Number of co-occurrences (a), and boundaries of these text passages (b)
-    a,b = list_comparer(locations, threshold)
+    a,indices_of_cooccurrences = list_comparer(locations, threshold)
     ### Takes indices of boundaries, and returns passages as a list per relationship
-    c = passage_aggregator(b)
+    c = passage_aggregator(text, locations, indices_of_cooccurrences)
     ### Turns list of passages per relationship into a csv for editing
     passage_deaggregator(c)

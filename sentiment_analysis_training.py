@@ -29,6 +29,38 @@ def cross_validation_suite(X_train, y_train):
         clas_rep = classification_report(y_train, y_pred)
         print("{}, \n {}, \n {}, \n {}".format(names[i], score.mean(), conf_mat, clas_rep))
 
+def text_vectorization(training_file, target_file):
+    training_sentences = pd.read_csv(training_file)
+    training_features = training_sentences['Text']
+    target_sentences = pd.read_csv(target_file)
+    target_features = target_sentences['Text']
+    complete_features = pd.concat([training_features,target_features])
+    vectorizer = TfidfVectorizer(max_features=2500, stop_words=stopwords.words('french'))
+    vectorizer.fit(complete_features)
+
+    return vectorizer
+
+def sentiment_analysis_training(vectorizer, training_file):
+    training_sentences = pd.read_csv(training_file)
+    training_features = training_sentences['Text']
+    training_sentence_labels = training_sentences['Label']
+
+    features = vectorizer.transform(training_features).toarray()
+    np.random.seed(17)
+
+    ### Split into train and test sets
+    X_train, X_test, y_train, y_test = train_test_split(features, training_sentence_labels, test_size=0.3, stratify = training_sentence_labels, random_state=0)
+
+    ### Use the model with the highest cross_val_score
+    clf = RandomForestClassifier(n_estimators=200, random_state=0)
+
+    # Fit and test the model
+    clf.fit(X_train, y_train)
+    predictions = clf.predict(X_test)
+    print(accuracy_score(y_test, predictions))
+
+    return clf
+
 ### Main module
 if __name__ == "__main__":
 

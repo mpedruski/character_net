@@ -34,8 +34,15 @@ def generate_sentence_csv(text, file_name):
     tokens = nltk.sent_tokenize(text)
     with open(file_name, mode='w') as sentences:
         sentence_writer = csv.writer(sentences, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        sentence_writer.writerow(['Text'])
         for i in tokens:
             sentence_writer.writerow([i])
+
+def sentiment_analysis_training_set_generation(file, text_start, text_end):
+    title = re.search(r'/data/(.*)\.txt', file).group(1)
+    ### Load target file, remove licence and preprocess
+    target_file = text_preprocessing(file_processor(file, text_start, text_end))
+    generate_sentence_csv(target_file,'./data/{}_raw_sentences.csv'.format(title))
 
 ### Main module
 if __name__ == "__main__":
