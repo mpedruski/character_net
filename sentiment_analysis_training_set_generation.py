@@ -1,6 +1,4 @@
 import nltk as nltk
-import numpy as np
-import itertools
 import csv
 import re
 
@@ -49,8 +47,6 @@ if __name__ == "__main__":
 
     ### Load training file, remove licence, and preprocess
     training_file = text_preprocessing(file_processor('./data/auberge.txt','''A mes petits-fils, LOUIS ET GASTON DE MALARET''','''End of Project Gutenberg's'''))
-    target_file = text_preprocessing(file_processor('./data/general.txt','''A ma petite-fille''','''End of Project Gutenberg's'''))
 
     ### Generate output csvs from text for training and target text
     generate_sentence_csv(training_file,'./data/auberge_raw_sentences.csv')
-    generate_sentence_csv(target_file,'./data/general_raw_sentences.csv')

@@ -2,10 +2,7 @@ import nltk as nltk
 import numpy as np
 import itertools
 import csv
-import re
 import logging
-from character_identification import execute_char_id
-from sentiment_analysis_training_set_generation import file_processor, text_preprocessing
 
 logging.basicConfig(level=logging.CRITICAL,format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -93,31 +90,3 @@ def co_occurrence_data_generation(text, locations, cooccurrence_boundaries, titl
     list_of_passages_per_relationship = passage_aggregator(text, locations, cooccurrence_boundaries)
     ### Turns list of passages per relationship into a csv for editing
     passage_deaggregator(list_of_passages_per_relationship, title)
-
-
-### Main module
-if __name__ == "__main__":
-
-    ### Load text file, remove licence, and do text_preprocessing
-    processed = text_preprocessing(file_processor('./data/general.txt','''A ma petite-fille''','''End of Project Gutenberg's'''))
-
-    ### Tokenize into words to find cooccurrences
-    tokens = nltk.word_tokenize(processed)
-    text = nltk.Text(tokens)
-
-    ### The names of characters
-    names = execute_char_id('./data/general.txt','''A ma petite-fille''','''End of Project Gutenberg's''')
-    names = [i.lower() for i in names]
-
-    ### Generate list of locations for each character
-    locations = general_character_handling(text, names)
-
-    ### How close in the text should character tokens have to be to be counted?
-    threshold = 20
-
-    ### Number of co-occurrences (a), and boundaries of these text passages (b)
-    a,indices_of_cooccurrences = list_comparer(locations, threshold)
-    ### Takes indices of boundaries, and returns passages as a list per relationship
-    c = passage_aggregator(text, locations, indices_of_cooccurrences)
-    ### Turns list of passages per relationship into a csv for editing
-    passage_deaggregator(c)
