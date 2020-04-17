@@ -11,16 +11,20 @@ from sentiment_analysis_training_set_generation import file_processor, text_prep
 logging.basicConfig(level=logging.CRITICAL,format='%(asctime)s - %(levelname)s - %(message)s')
 
 def centered_passages(indices, threshold, text):
-    '''Accepts a list of indices where a character is mentioned and returns
-    the text surrounding this mention to a distance of threshold//2'''
+    '''[int], int, str -> [str]
+    Accepts a list of indices where a character is mentioned, the text the indices
+    refer to, and a threshold value. Returns
+    the text surrounding each mention to a distance of threshold//2'''
     bounds = threshold//2
     passages = [' '.join(text[i-bounds:i+bounds]) for i in indices]
     return passages
 
 def passage_sentiment(passage, vectorizer, clf):
-    '''Accepts a list of text passages, converts them to a numpy array,
-    fits them to a pre-set vector space (vct), and then makes sentiment predictions
-    for each passage based on a pre-trained model'''
+    '''
+    [str], model, model -> [int]
+    Accepts a list of text passages, converts them to a numpy array,
+    fits them to a pre-set vector space (vectorizer), and then makes sentiment
+    predictions for each passage based on a pre-trained model (clf)'''
     arr = np.asarray(passage)
     features = vectorizer.transform(arr).toarray()
     coded_predictions = clf.predict(features)
@@ -35,6 +39,15 @@ def passage_sentiment(passage, vectorizer, clf):
     return predictions
 
 def network_visualizer(edge_matrix, character_list, edge_sentiment, node_sentiment, title):
+    '''
+    arr, [str], [float], [float], str -> graph
+    Accepts a Boolean array of edges, a list of character names, the sentiment
+    attributed to each edge in the edge matrix, the sentiment attributed to
+    each character, and the title of the work, and generates a network graph
+    in which characters are represented in nodes, and significant relationships
+    in edges between nodes. Both edges and nodes are colour coded by sentiment.
+    (More positive edges and nodes are blue, less positive are pink)
+    '''
     edge_list = []
     for i in range(len(character_list)):
         for j in range(len(character_list)):
@@ -57,6 +70,13 @@ def network_visualizer(edge_matrix, character_list, edge_sentiment, node_sentime
     plt.savefig('./data/{}_character_network.svg'.format(title))
 
 def nltk_text_creation(file, beginning_of_text, end_of_text):
+    '''
+    str, str, str -> text
+    Accepts a file path, the string indicating the beginning of the text, and
+    a string indicating the end of the text. Removes string outside of the
+    range between beginning and end, does some preprocessing, tokenizes the text
+    by words and returns an nltk text.
+    '''
     ### Load text file, remove licence, and do text_preprocessing
     processed = text_preprocessing(file_processor(file, beginning_of_text, end_of_text))
 
@@ -66,6 +86,12 @@ def nltk_text_creation(file, beginning_of_text, end_of_text):
     return text
 
 def co_occurrence_passage_sentiment(vectorizer, clf, title, names, edges):
+    '''
+    model, model, str, [str], arr -> [float]
+    Accepts pre-fit vectorizer and classifier models, the title of a work,
+    the names of characters in the work, and an array of edges between those
+    characters. Returns mean sentiment scores for each valid edge.
+    '''
     ### Sentiment scores for co-occurrence passages
     df = pd.read_csv('./data/{}_relationship_passages.csv'.format(title))
     df['Sentiment'] = passage_sentiment(df['Passage'], vectorizer, clf)
@@ -84,6 +110,13 @@ def co_occurrence_passage_sentiment(vectorizer, clf, title, names, edges):
     return valid_edge_scores
 
 def character_sentiment_scores(locations, threshold, text, vectorizer, clf):
+    '''
+    [int], int, text, model, model -> [float]
+    Accepts a nested list of indices for each occurrence of a character name,
+    a threshold distance for text to examine around that mention, the nltk text
+    in question, a pre-fit vectorizer and a pre-fit sentiment classifier.
+    Returns the mean sentiment score for each character.
+    '''
     char_scores = []
     for i in range(len(locations)):
         passages = centered_passages(locations[i], threshold, text)

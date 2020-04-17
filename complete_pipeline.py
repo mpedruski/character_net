@@ -2,8 +2,8 @@ import re
 import numpy as np
 from character_identification import execute_char_id
 from textual_analysis import nltk_text_creation, co_occurrence_passage_sentiment, character_sentiment_scores, network_visualizer
-from sentiment_analysis_training_set_generation import sentiment_analysis_training_set_generation
-from sentiment_analysis_training import text_vectorization, sentiment_analysis_training
+from sentiment_analysis_training_set_generation import target_text_tokenizer
+from sentiment_analysis_training import text_vectorization, sentiment_analysis_training, cross_validation_suite
 from co_occurrence_data_generation import co_occurrence_data_generation, list_comparer, general_character_handling
 
 ### Main module
@@ -19,13 +19,13 @@ if __name__ == "__main__":
     ### Generate list of characters and preprocess for later use
     list_of_characters = execute_char_id(raw_file, start, end)
     list_of_characters = [i.lower() for i in list_of_characters]
-    ### Error being caused by name 'ie' which isn't in the text itself
-    list_of_characters = [i for i in list_of_characters if i != 'ie']
 
     ### Generate csv of words needed to run vectorizer
-    sentiment_analysis_training_set_generation(raw_file, start, end)
+    target_text_tokenizer(raw_file, start, end)
     ### Make vector space that includes target text and training text
     vectorizer = text_vectorization(sentiment_training_file, processed_file)
+    ### Cross validation of sentiment analysis classifier
+    # cross_validation_suite(vectorizer, sentiment_training_file)
     ### Train sentiment-anlaysis model based only on training text
     clf = sentiment_analysis_training(vectorizer, sentiment_training_file)
     ### Preprocessing of raw text and conversion to NLTK text class

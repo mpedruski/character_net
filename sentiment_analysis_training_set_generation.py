@@ -3,7 +3,9 @@ import csv
 import re
 
 def text_preprocessing(text):
-    '''Accepts a raw text string (after the licence has been removed)
+    '''
+    str -> str
+    Accepts a raw text string (after the licence has been removed)
     and does some basic preprocessing to remove special characters, singletons
     multiple whitespaces, leading b's, converting to lower.'''
     processed = re.sub(r'[«»\,\_\;\':-]', ' ', text)
@@ -15,9 +17,11 @@ def text_preprocessing(text):
     return processed
 
 def file_processor(file_name, initializer_string, terminator_string):
-    '''Accepts a valid file name and a string of text that indicates the
-    end of the Gutenberg licence. It removes the licence and returns
-    the raw text of the document'''
+    '''
+    str, str, str -> str
+    Accepts a valid file path and strings of text that indicate the start and
+    end of the document. It removes the licence (external to the document) and
+    returns the raw text of the document'''
     fh = open(file_name,'r')
     raw = fh.read()
     fh.close()
@@ -27,8 +31,10 @@ def file_processor(file_name, initializer_string, terminator_string):
     return licence_removed
 
 def generate_sentence_csv(text, file_name):
-    '''Accepts a processed list of tokens and writes them to a csv with
-    each token on a separate line using the supplied file_name'''
+    '''
+    [str], str -> csv
+    Accepts a text, and converts it into sentence tokens which are written
+    to a csv with each token on a separate line using the supplied file_name'''
     tokens = nltk.sent_tokenize(text)
     with open(file_name, mode='w') as sentences:
         sentence_writer = csv.writer(sentences, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
@@ -36,7 +42,13 @@ def generate_sentence_csv(text, file_name):
         for i in tokens:
             sentence_writer.writerow([i])
 
-def sentiment_analysis_training_set_generation(file, text_start, text_end):
+def target_text_tokenizer(file, text_start, text_end):
+    '''
+    str, str, str
+    Accepts a file path, and strings indicating the start and end of a document.
+    Calls functions that remove text before/after the start/end, preprocess
+    the text, tolkenize the text and then generates a csv of the tolkens.
+    '''
     title = re.search(r'/data/(.*)\.txt', file).group(1)
     ### Load target file, remove licence and preprocess
     target_file = text_preprocessing(file_processor(file, text_start, text_end))
