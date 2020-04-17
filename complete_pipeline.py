@@ -10,8 +10,8 @@ from co_occurrence_data_generation import co_occurrence_data_generation, list_co
 if __name__ == "__main__":
 
     ### Basic parameters of the files to be used, the title of the target file, and threshold for co-occurrences
-    raw_file, start, end = './data/proust.txt', 'PREMIÈRE PARTIE','''End of the Project Gutenberg EBook'''
-    processed_file = './data/proust_raw_sentences.csv'
+    raw_file, start, end = './data/general.txt', 'A ma petite-fille','''End of Project Gutenberg's'''
+    processed_file = './data/general_raw_sentences.csv'
     sentiment_training_file = './data/auberge_coded_sentences_short.csv'
     title = re.search(r'/data/(.*)\.txt', raw_file).group(1)
     threshold = 20

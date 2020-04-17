@@ -35,13 +35,12 @@ Ultimately the goal is to have a pipeline generally applicable to French
 literature. For now this primarily involves investigating model performance
 on a broad range of classic French novels, and could eventually entail
 a significant reconsideration of the approach to sentiment analysis or
-edge identification. For example, edge identification by examining cooccurrences
-works well for some texts, but less so for others (e.g. works by Marcel Proust).
+edge identification. 
 
 At this point all steps in the pipeline are functional, though iterative improvements
 are planned. You can see some sample networks built by the model below (positive characters and interactions in blue, neutral in purple, and negative in pink):
 
-!["Visualization of network for Le Général Dourakine"](https://github.com/mpedruski/character_net/blob/master/results/character_network.svg.png "Network in progress")
+!["Visualization of network for Le Général Dourakine"](https://github.com/mpedruski/character_net/blob/master/results/general_character_network.svg.png "Network in progress")
 
 ## Files
 
